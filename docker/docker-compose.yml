@@ -1,12 +1,11 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  # Aplikacja React do nauki chorwackiego
-  croatian-app:
+  frontend:
     build:
-      context: .
+      context: ../frontend
       dockerfile: Dockerfile
-    container_name: croatian-learning-app
+    container_name: croatian-learning-frontend
     ports:
       - "3000:80"
     restart: unless-stopped
