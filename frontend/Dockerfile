@@ -1,32 +1,26 @@
 # Etap 1: Budowanie aplikacji
 FROM node:18-alpine AS builder
 
-# Ustaw katalog roboczy
 WORKDIR /app
 
-# Skopiuj pliki package.json
 COPY package*.json ./
-
-# Zainstaluj zależności (użyj npm install zamiast npm ci)
 RUN npm install --legacy-peer-deps
 
-# Skopiuj resztę plików aplikacji
+# Skopiuj całą aplikację
 COPY . .
 
-# Zbuduj aplikację dla produkcji
+# Build Vite
 RUN npm run build
 
-# Etap 2: Serwowanie aplikacji przez nginx
+# Etap 2: Uruchamianie przez nginx
 FROM nginx:alpine
 
-# Skopiuj zbudowaną aplikację z etapu builder
+# Skopiuj build
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Skopiuj custom konfigurację nginx (dla React Router)
+# Dodaj nginx.conf (ważne!)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
 EXPOSE 80
 
-# Uruchom nginx
 CMD ["nginx", "-g", "daemon off;"]
