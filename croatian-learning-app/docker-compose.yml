@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # Aplikacja React do nauki chorwackiego
+  croatian-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: croatian-learning-app
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    networks:
+      - croatian-network
+
+networks:
+  croatian-network:
+    driver: bridge

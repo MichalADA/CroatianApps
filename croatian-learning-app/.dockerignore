@@ -1,0 +1,39 @@
+# Zależności
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build
+dist
+dist-ssr
+*.local
+
+# Testy
+coverage
+.nyc_output
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Dokumentacja (opcjonalnie, jeśli nie chcesz jej w obrazie)
+# README.md
+# QUICK_START.md
+# PODSUMOWANIE.md

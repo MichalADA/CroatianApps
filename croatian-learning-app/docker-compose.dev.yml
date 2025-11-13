@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # Aplikacja React w trybie deweloperskim (z hot-reload)
+  croatian-app-dev:
+    image: node:18-alpine
+    container_name: croatian-learning-app-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    command: sh -c "npm install && npm run dev -- --host"
+    restart: unless-stopped
+    networks:
+      - croatian-network-dev
+
+networks:
+  croatian-network-dev:
+    driver: bridge
