@@ -1,22 +1,75 @@
 version: '3.8'
 
 services:
-  # Aplikacja React w trybie deweloperskim (z hot-reload)
-  croatian-app-dev:
+  # 💻 Frontend (React w Vite - hot reload)
+  frontend:
     image: node:18-alpine
-    container_name: croatian-learning-app-dev
+    container_name: croatian-learning-frontend-dev
     working_dir: /app
     volumes:
-      - .:/app
+      - ../frontend:/app
       - /app/node_modules
     ports:
       - "5173:5173"
     environment:
       - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001
     command: sh -c "npm install && npm run dev -- --host"
     restart: unless-stopped
+    depends_on:
+      - backend
     networks:
       - croatian-network-dev
+
+  # 🚀 Backend (Node.js - hot reload z nodemon)
+  backend:
+    image: node:18-alpine
+    container_name: croatian-learning-backend-dev
+    working_dir: /app
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://croatian_user:secure_password@postgres:5432/croatian_db
+      - JWT_SECRET=dev-secret-key
+      - JWT_EXPIRE=7d
+      - FRONTEND_URL=http://localhost:5173
+    command: sh -c "npm install && npm run dev"
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - croatian-network-dev
+
+  # 🗄️ PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: croatian-learning-postgres-dev
+    environment:
+      - POSTGRES_USER=croatian_user
+      - POSTGRES_PASSWORD=secure_password
+      - POSTGRES_DB=croatian_db
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - croatian-network-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U croatian_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_dev:
+    driver: local
 
 networks:
   croatian-network-dev:

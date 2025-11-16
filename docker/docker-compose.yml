@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+  # 📦 Frontend (React/Vite)
   frontend:
     build:
       context: ../frontend
@@ -9,8 +10,59 @@ services:
     ports:
       - "3000:80"
     restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:3001
     networks:
       - croatian-network
+
+  # 🚀 Backend (Node.js/Express)
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: croatian-learning-backend
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://croatian_user:secure_password@postgres:5432/croatian_db
+      - JWT_SECRET=your-super-secret-key-change-this-in-production
+      - JWT_EXPIRE=7d
+      - FRONTEND_URL=http://localhost:3000
+    networks:
+      - croatian-network
+
+  # 🗄️ PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: croatian-learning-postgres
+    environment:
+      - POSTGRES_USER=croatian_user
+      - POSTGRES_PASSWORD=secure_password
+      - POSTGRES_DB=croatian_db
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - croatian-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U croatian_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
 
 networks:
   croatian-network:
